@@ -1,10 +1,8 @@
 
 pipeline {
-    agent {
-        label ("aws-deploy")
-            }
+    agent any
   environment {
-		DOCKERHUB_CREDENTIALS=credentials('dockerhub')
+		DOCKERHUB_CREDENTIALS=credentials('dockerhub-credentials')
 	}
     options {
         buildDiscarder(logRotator(numToKeepStr: '5'))
@@ -131,7 +129,7 @@ pipeline {
             steps {
                 sh '''
             cd $WORKSPACE/weatherapp/auth
-            docker build -t devopseasylearning/weatherapp-auth:${BUILD_NUMBER} .
+            docker build -t santonix/santonix-weatherapp-auth:${BUILD_NUMBER} .
                 '''
             }
         }
@@ -142,7 +140,7 @@ pipeline {
             }
             steps {
                 sh '''
-             docker push devopseasylearning/weatherapp-auth:${BUILD_NUMBER}
+             docker push santonix/santonix-weatherapp-auth:${BUILD_NUMBER}
                 '''
             }
         }
@@ -152,7 +150,7 @@ pipeline {
             steps {
                 sh '''
             cd $WORKSPACE/weatherapp/UI
-            docker build -t devopseasylearning/weatherapp-ui:${BUILD_NUMBER} .
+            docker build -t santonix/santonix-weatherapp-ui:${BUILD_NUMBER} .
                 '''
             }
         }
@@ -163,7 +161,7 @@ pipeline {
             }
             steps {
                 sh '''
-             docker push devopseasylearning/weatherapp-ui:${BUILD_NUMBER}
+             docker push santonix/santonix-weatherapp-ui:${BUILD_NUMBER}
                 '''
             }
         }
@@ -171,7 +169,7 @@ pipeline {
             steps {
                 sh '''
             cd $WORKSPACE/weatherapp/weather
-            docker build -t devopseasylearning/weatherapp-weather:${BUILD_NUMBER} .
+            docker build -t santonix/santonix-weatherapp-weather:${BUILD_NUMBER} .
                 '''
             }
         }
@@ -182,7 +180,7 @@ pipeline {
             }
             steps {
                 sh '''
-             docker push devopseasylearning/weatherapp-weather:${BUILD_NUMBER}
+             docker push santonix/santonix-weatherapp-weather:${BUILD_NUMBER}
                 '''
             }
         }
@@ -190,7 +188,7 @@ pipeline {
             steps {
                 sh '''
             cd $WORKSPACE/weatherapp/redis
-            docker build -t devopseasylearning/weatherapp-redis:${BUILD_NUMBER} .
+            docker build -t santonix/santonix-weatherapp-redis:${BUILD_NUMBER} .
                 '''
             }
         }
@@ -202,7 +200,7 @@ pipeline {
             }
             steps {
                 sh '''
-             docker push devopseasylearning/weatherapp-redis:${BUILD_NUMBER}
+             docker push santonix/santonix-weatherapp-redis:${BUILD_NUMBER}
                 '''
             }
         }
@@ -210,7 +208,7 @@ pipeline {
             steps {
                 sh '''
             cd $WORKSPACE/weatherapp/db
-            docker build -t devopseasylearning/weatherapp-db:${BUILD_NUMBER} .
+            docker build -t santonix/santonix-weatherapp-db:${BUILD_NUMBER} .
                 '''
             }
         }
@@ -222,7 +220,7 @@ pipeline {
             }
             steps {
                 sh '''
-             docker push devopseasylearning/weatherapp-db:${BUILD_NUMBER}
+             docker push santonix/santonix-weatherapp-db:${BUILD_NUMBER}
                 '''
             }
         }
