@@ -1,0 +1,23 @@
+1- Tell me about yourself 
+2- Tell me about your day to day at work 
+3- What make you apply for this position 
+4- Tell me about a project you have work on that makes you 
+   pride each time you think about it 
+
+5- What was your level of participation on the project 
+6- What difficulty did you faced 
+7- Walk me through one of your development pipeline 
+8- Can you walk me tru how to set up a docker agent and a kubernetes agent in the jenkins server
+9- How implement security in the pipeline?
+10 - Explain a time when you had to troubleshoot a critical issue in a production environment. How did you identify the root cause, and what steps did you take to resolve it quickly and efficiently?
+11- How do you scan docker images?
+12- Can you share a situation where you had to work with cross-functional teams, including developers and operations, to ensure seamless collaboration and delivery of a project?
+13- How can you troubleshoot Jenkins build failures?
+14- What's your strategy of choice when it comes to setting up Jenkins?
+15- how do you manage your secret in Jenkins
+16- Can you tell me the challenge you face at work and how you solve it ? 
+17- Can you explain the time where you took leardership at work
+18- Tell me the Different Tools you have been working with , and the pipeline you build or work On 
+19- Walk me through steps by steps how you deploy your application from begin to the end , and what language the dev use to implement it
+20- when integrating SonarQube for static code analiysis,Explain how this integration works in CI/CD pipeline and what benefits it brings to the development process?
+21- Why should we hire you.

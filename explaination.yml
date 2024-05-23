@@ -1,0 +1,37 @@
+Project name: THE-WEATHER_APP
+   Areas:
+    DEV:
+      develop: this pipeline is there to deploy the main branch called develop 
+               when there is a pull request into the devopment CLUSTER.
+
+      Multi-branch-pipeline: this area is trigered each time a new branch is created or each time 
+               a commit is made into a branch that is not develop, this never trigger when there is 
+               a change in develop because the develop branch has been excluded.
+
+      Deploy_branch_on_demand: this job allow developpers to deploy a specific branch into the 
+               devopment CLUSTER an see the result on the browser.
+
+      tagging: this job is used to create github tag at the end of each sprint. 
+
+      build-images: this job is used to build and tag images that will be tested and deployed in production cluster.
+
+     
+    QA:
+      QA-test: this job is there to pull images coming from development, launch the application on the QA cluster
+                to perform all QA testing.
+
+      notify: this job is use to reject the application and return it to development or accept it and send it to the devops team
+
+               
+
+    DEVOPS:   
+                
+      PREPROD:
+        Deploy: this job is used to deploy applciation in preproduction cluster for 72 hours devops testing and observation.
+                 if the application pass the devops testing and observation production is scheduled
+                 if the application fail for any reason it is sent back to development.
+      
+      PROD:
+        Deploy: this job is used to deploy the application to production 
+        go-no-go: this job is there to announce production deployment to the softare factory.
+    PS: both production and preproduction pipelines, clusters are always IDENTICAL and always need manual trigger

@@ -1,0 +1,109 @@
+
+pipeline {
+    agent any 
+  environment {
+		DOCKERHUB_CREDENTIALS=credentials('dockerhub')
+	}
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '5'))
+        disableConcurrentBuilds()
+        timeout(time: 1, unit: 'HOURS') 
+        timestamps()
+      }
+    stages {
+        stage('Setup parameters') {
+            steps {
+                script {
+                    properties([
+                        parameters([
+
+                             string(name: 'BRANCH',
+                             defaultValue: 'develop',
+                            description: '''Enter the base  Branch for the tag '''),
+
+
+                             string(name: 'DEPLOYER_NAME',
+                             defaultValue: '',
+                            description: '''Enter your name'''),
+
+
+                             string(name: 'TAG_NUMBER',
+                             defaultValue: '',
+                            description: '''Enter the tag number  example 1.0.0'''),
+
+                             string(name: 'COMMIT_MESSAGE',
+                             defaultValue: '',
+                            description: '''Enter the description of change made on tag'''),
+
+                        ])
+                    ])
+                }
+            }
+        }
+
+
+    stage('check entry') {
+
+			steps {
+				sh ''' 
+                bash $WORKSPACE/weatherapp/tag.sh $TAG_NUMBER $BRANCH $COMMIT_MESSAGE $DEPLOYER_NAME
+                '''
+			}
+		}
+
+
+    stage('Cloning ') {
+
+			steps {
+				sh '''
+                rm -rf * || true 
+                git clone -b $BRANCH git@github.com:DEL-ORG/S5-SESSION-PROJECTS.git  
+                  '''
+			}
+		}
+
+        stage('tagging && pushing') {
+            steps {
+                sh '''
+             git config --global user.email "info@devopseasylearning.com"
+             git config --global user.name "devopseasylearning"
+            cd $WORKSPACE/S5-SESSION-PROJECTS/weatherapp
+            git tag -a v$TAG_NUMBER   -m "$COMMIT_MESSAGE"
+            git push origin v$TAG_NUMBER
+
+                '''
+            }
+        }
+
+
+
+
+}
+
+
+
+   post {
+   
+   success {
+      slackSend (channel: '#development-alerts', color: 'good', message: " $DEPLOYER_NAME, Application The_Weather_app  with  tag name v$TAG_NUMBER , with commit message $COMMIT_MESSAGE has been successful :  Branch name  <<${BRANCH}>>  Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+      slackSend (channel: '#testing-alerts', color: 'good', message: " Dear Quality Assurance Team Members, Application The_Weather_app  with    tag name $TAG_NUMBER , with commit message $COMMIT_MESSAGE has is ready for QA TESTING :  Branch name  <<${BRANCH}>>  Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+    
+    }
+
+
+
+
+
+    failure {
+      slackSend (channel: '#development-alerts', color: '#FF0000', message: "$DEPLOYER_NAME, Application The_Weather_app  with  tag name v$TAG_NUMBER , with commit message $COMMIT_MESSAGE FAILURE:  Branch name  <<${BRANCH}>> Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})") 
+      
+    }
+   
+    cleanup {
+      deleteDir()
+    }
+}
+
+}
+
+
