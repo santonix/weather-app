@@ -3,8 +3,7 @@ pipeline {
   agent {
     node {
 	 label 'docker-dind'   
-        image 'docker:19.03.12-dind'
-        args '--privileged' // Needed to run Docker within Docker 
+     
 
       }
     }
