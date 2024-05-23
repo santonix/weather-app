@@ -54,6 +54,7 @@ pipeline {
             steps {
                 script {
                     // Starockerd-entrypoint.sht Docker daemon in background
+			sh ' chmod +x weatherapp/dockerd-entrypoint.sh'
                     sh ' weatherapp/dockerd-entrypoint.sh &'
                     // Wait for Docker daemon to start
                     sh 'while (! docker info > /dev/null 2>&1); do sleep 1; done'
