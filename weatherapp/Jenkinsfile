@@ -1,12 +1,7 @@
 
 pipeline {
-  agent {
-    node {
-	 label 'docker-dind'   
-     
-
-      }
-    }
+  agent any
+    
   environment {
 		DOCKERHUB_CREDENTIALS=credentials('dockerhub-credentials')
     DOCKER_HOST = 'tcp://localhost:2375' // Docker-in-Docker TCP socket
@@ -55,17 +50,7 @@ pipeline {
 
          //////////////////////////////////
 
-        stage('Setup Docker') {
-            steps {
-                script {
-                    // Starockerd-entrypoint.sht Docker daemon in background
-			sh ' chmod +x weatherapp/dockerd-entrypoint.sh'
-                    sh ' weatherapp/dockerd-entrypoint.sh &'
-                    // Wait for Docker daemon to start
-                    sh 'while (! docker info > /dev/null 2>&1); do sleep 1; done'
-                }
-            }
-        }
+       
 
         stage('Test auth') {
 	     agent {
