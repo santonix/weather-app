@@ -5,8 +5,7 @@ pipeline {
     DOCKER_REGISTRY_URL = 'https://hub.docker.com/v1/ '
     DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
     
-    DOCKER_HOST = 'tcp://localhost:2375' // Docker-in-Docker TCP socket
-    DOCKER_TLS_CERTDIR = '' // Disabling TLS, not recommended for production
+  
   }
 
   options {
