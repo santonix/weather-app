@@ -21,6 +21,11 @@ pipeline {
         timestamps()
       }
     stages {
+	stage ('checkout') {
+		steps {
+			checkout scmGit(branches: [[name: '**']], extensions: [], userRemoteConfigs: [[credentialsId: 'jenkins-github-private', url: 'git@github.com:santonix/weather-app.git']])
+		}
+	}    
         stage('Setup parameters') {
             steps {
                 script {
