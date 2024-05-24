@@ -2,7 +2,9 @@ pipeline {
   agent any
     
   environment {
+    DOCKER_REGISTRY_URL = 'https://hub.docker.com/'
     DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
+    
     DOCKER_HOST = 'tcp://localhost:2375' // Docker-in-Docker TCP socket
     DOCKER_TLS_CERTDIR = '' // Disabling TLS, not recommended for production
   }
