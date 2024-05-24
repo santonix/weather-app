@@ -2,7 +2,7 @@ pipeline {
   agent any
     
   environment {
-    DOCKER_REGISTRY_URL = 'https://hub.docker.com/'
+    DOCKER_REGISTRY_URL = 'https://hub.docker.com/v1/ '
     DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
     
     DOCKER_HOST = 'tcp://localhost:2375' // Docker-in-Docker TCP socket
