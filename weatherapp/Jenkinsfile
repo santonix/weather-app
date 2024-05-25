@@ -1,5 +1,7 @@
 pipeline {
-  agent any
+  agent {
+    label 'docker-dind'
+  }
     
   environment {
     DOCKER_REGISTRY_URL = 'https://hub.docker.com/v1/ '
