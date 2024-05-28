@@ -91,22 +91,24 @@ pipeline {
       }
     }
 
-    stage('SonarQube analysis') {
-      agent {
-        docker {
-          image 'sonarsource/sonar-scanner-cli:4.7.0'
+     stage('SonarQube analysis') {
+            agent {
+                docker {
+                    image 'sonarsource/sonar-scanner-cli:4.7.0'
+                }
+            }
+            environment {
+                CI = 'true'
+                scannerHome = 'sonar-scanner'
+            }
+            steps {
+                withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                    withSonarQubeEnv('sonarqube server') {
+                        sh "${scannerHome}/bin/sonar-scanner -Dsonar.login=$SONAR_TOKEN"
+                    }
+                }
+            }
         }
-      }
-      environment {
-        CI = 'true'
-        scannerHome = 'sonar-scanner'
-      }
-      steps {
-        withSonarQubeEnv('sonarqube server') {
-          sh "${scannerHome}/bin/sonar-scanner"
-        }
-      }
-    }
 
     
 
