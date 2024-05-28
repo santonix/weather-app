@@ -99,7 +99,7 @@ pipeline {
             }
             environment {
                 CI = 'true'
-                scannerHome = 'sonar-scanner'
+                scannerHome = '/opt/sonar-scanner'
             }
             steps {
                 withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
