@@ -99,7 +99,7 @@ pipeline {
       }
       environment {
         CI = 'true'
-        scannerHome = '/opt/sonar-scanner'
+        scannerHome = 'sonar-scanner'
       }
       steps {
         withSonarQubeEnv('sonarqube server') {
