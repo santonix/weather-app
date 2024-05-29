@@ -314,9 +314,8 @@ EOF
     }
 
     stage('Deploy') {
-      agent { 
-        label "production"
-      }
+      agent any
+      
       when { 
         expression { env.GIT_BRANCH == 'origin/develop' }
       }
@@ -330,9 +329,7 @@ EOF
     }
 
     stage('checking website') {
-      agent { 
-        label "production"
-      }
+      agent any
       when { 
         expression { env.GIT_BRANCH == 'origin/develop' }
       }
