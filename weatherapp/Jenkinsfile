@@ -195,9 +195,7 @@ pipeline {
     }
 
     stage('warning') {
-      agent { 
-        label "production"
-      }
+      agent any
       when { 
         expression { env.GIT_BRANCH == 'origin/develop' }
       }
@@ -210,9 +208,7 @@ pipeline {
     }
 
     stage('Generate-compose') {
-      agent { 
-        label "production"
-      }
+      agent any
       when { 
         expression { env.GIT_BRANCH == 'origin/develop' }
       }
