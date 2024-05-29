@@ -209,9 +209,7 @@ pipeline {
 
     stage('Generate-compose') {
       agent any
-      when { 
-        expression { env.GIT_BRANCH == 'origin/develop' }
-      }
+     
       steps {
         script {
           withCredentials([
@@ -312,9 +310,7 @@ EOF
     stage('Deploy') {
       agent any
       
-      when { 
-        expression { env.GIT_BRANCH == 'origin/develop' }
-      }
+      
       steps {
         sh '''
           docker-compose down --remove-orphans || true
@@ -326,9 +322,7 @@ EOF
 
     stage('checking website') {
       agent any
-      when { 
-        expression { env.GIT_BRANCH == 'origin/develop' }
-      }
+      
       steps {
         sh '''
           sleep 10
