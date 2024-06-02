@@ -189,7 +189,7 @@ pipeline {
                         ]
 
                         // Log the user input
-                        echo "User ${userInput.User} has confirmed to proceed."
+                        echo "User ${userInput} has confirmed to proceed."
 
                         // Pause for the specified warning time
                         def warnTime = 2 // Set this to your desired number of minutes for the test
