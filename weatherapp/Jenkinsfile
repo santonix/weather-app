@@ -2,7 +2,7 @@ pipeline {
   agent {
     docker {
          image 'santonix/santonix-jenkins-docker-agent:latest'
-         label 'java-docker-slave'
+         
       
     }
     
