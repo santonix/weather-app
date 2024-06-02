@@ -176,14 +176,32 @@ pipeline {
       }
     }
 
-    stage('warning') {
-      agent any
-      steps {
-        script {
-          notifyUpgrade(currentBuild.currentResult, "WARNING")
-          sleep(time: env.WARNTIME, unit: "MINUTES")
-        }
-      }
+    stage('Test input and wait') {
+            steps {
+                script {
+                    try {
+                        // Example notification function call (replace with actual implementation if necessary)
+                        echo "Sending notification: WARNING - Build result: ${currentBuild.currentResult}"
+
+                        // Prompt for user input to proceed
+                        def userInput = input message: 'Do you want to proceed with the upgrade?', ok: 'Yes, proceed', parameters: [
+                            string(name: 'User', defaultValue: 'bonny', description: 'the user asked for input')
+                        ]
+
+                        // Log the user input
+                        echo "User ${userInput.User} has confirmed to proceed."
+
+                        // Pause for the specified warning time
+                        def warnTime = 2 // Set this to your desired number of minutes for the test
+                        echo "Waiting for ${warnTime} minutes before starting the upgrade"
+                        sleep(time: warnTime, unit: "MINUTES")
+                    } catch (Exception e) {
+                        echo "Failed in warning stage: ${e.message}"
+                        currentBuild.result = 'FAILURE'
+                        throw e
+                    }
+                }
+            }
     }
 
     stage('Generate-compose') {
