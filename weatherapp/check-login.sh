@@ -1,11 +1,17 @@
 #!/bin/bash
-ip_address=$(curl -s https://api.ipify.org ; echo)
-ip_port=3000
-curl http://$ip_address:$ip_port/login | grep '<title>Weather app login</title>'
 
-if 
-  [[  $? -ne 0 ]] 
-then 
-echo "The website is not comming up, please check"
-exit 1
+# Get the local IP address
+ip_address=$(hostname -I | awk '{print $1}')
+echo "Local IP address: $ip_address"
+
+# Set the port number
+ip_port=3000
+
+# Attempt to access the web server
+response=$(curl -s http://$ip_address:$ip_port/login)
+
+# Check if the title tag exists in the response
+if [[ $? -ne 0 ]] || ! echo "$response" | grep -q '<title>Weather app login</title>'; then
+  echo "The website is not coming up, please check"
+  exit 1
 fi
