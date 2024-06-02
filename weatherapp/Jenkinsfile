@@ -1,14 +1,9 @@
 pipeline {
   agent any
-    
- 
+
   environment {
-    DOCKER_REGISTRY_URL = 'https://hub.docker.com/v1/ '
-    DOCKERHUB_CREDENTIALS = credentials('jenkins-vivo-dockerhub')
-    
-    
-    
-  
+    DOCKER_REGISTRY_URL = 'https://index.docker.io/v1/'
+    DOCKERHUB_CREDENTIALS = 'jenkins-vivo-dockerhub'
   }
 
   options {
@@ -23,8 +18,8 @@ pipeline {
       steps {
         checkout scmGit(branches: [[name: '**']], extensions: [], userRemoteConfigs: [[credentialsId: 'jenkins-github-private', url: 'git@github.com:santonix/weather-app.git']])
       }
-    }    
-    
+    }
+
     stage('Setup parameters') {
       steps {
         script {
@@ -49,7 +44,7 @@ pipeline {
         sh '''
           id
           cd weatherapp/auth/src/main
-          go build 
+          go build
           cd -
           ls -la
         '''
@@ -86,9 +81,6 @@ pipeline {
       }
     }
 
-     
-    
-
     stage('Build auth') {
       steps {
         sh '''
@@ -99,11 +91,12 @@ pipeline {
     }
 
     stage('Push auth') {
-      
       steps {
-        sh '''
-          docker push santonix/santonix-weatherapp-auth:${BUILD_NUMBER}
-        '''
+        script {
+          docker.withRegistry(DOCKER_REGISTRY_URL, DOCKERHUB_CREDENTIALS) {
+            sh 'docker push santonix/santonix-weatherapp-auth:${BUILD_NUMBER}'
+          }
+        }
       }
     }
 
@@ -117,11 +110,12 @@ pipeline {
     }
 
     stage('Push UI') {
-      
       steps {
-        sh '''
-          docker push santonix/santonix-weatherapp-ui:${BUILD_NUMBER}
-        '''
+        script {
+          docker.withRegistry(DOCKER_REGISTRY_URL, DOCKERHUB_CREDENTIALS) {
+            sh 'docker push santonix/santonix-weatherapp-ui:${BUILD_NUMBER}'
+          }
+        }
       }
     }
 
@@ -135,11 +129,12 @@ pipeline {
     }
 
     stage('Push weather') {
-      
       steps {
-        sh '''
-          docker push santonix/santonix-weatherapp-weather:${BUILD_NUMBER}
-        '''
+        script {
+          docker.withRegistry(DOCKER_REGISTRY_URL, DOCKERHUB_CREDENTIALS) {
+            sh 'docker push santonix/santonix-weatherapp-weather:${BUILD_NUMBER}'
+          }
+        }
       }
     }
 
@@ -153,11 +148,12 @@ pipeline {
     }
 
     stage('Push redis') {
-      
       steps {
-        sh '''
-          docker push santonix/santonix-weatherapp-redis:${BUILD_NUMBER}
-        '''
+        script {
+          docker.withRegistry(DOCKER_REGISTRY_URL, DOCKERHUB_CREDENTIALS) {
+            sh 'docker push santonix/santonix-weatherapp-redis:${BUILD_NUMBER}'
+          }
+        }
       }
     }
 
@@ -171,17 +167,17 @@ pipeline {
     }
 
     stage('Push db') {
-      
       steps {
-        sh '''
-          docker push santonix/santonix-weatherapp-db:${BUILD_NUMBER}
-        '''
+        script {
+          docker.withRegistry(DOCKER_REGISTRY_URL, DOCKERHUB_CREDENTIALS) {
+            sh 'docker push santonix/santonix-weatherapp-db:${BUILD_NUMBER}'
+          }
+        }
       }
     }
 
     stage('warning') {
       agent any
-      
       steps {
         script {
           notifyUpgrade(currentBuild.currentResult, "WARNING")
@@ -189,166 +185,6 @@ pipeline {
         }
       }
     }
-
-    stage('Generate-compose') {
-      agent any
-     
-      steps {
-        script {
-          withCredentials([
-            string(credentialsId: 'WEATHERAPP_MYSQL_ROOT_PASSWORD', variable: 'WEATHERAPP_MYSQL_ROOT_PASSWORD'),
-            string(credentialsId: 'WEATHERAPP_REDIS_PASSWORD', variable: 'WEATHERAPP_REDIS_PASSWORD'),
-            string(credentialsId: 'WEATHERAPP_DB_PASSWORD', variable: 'WEATHERAPP_DB_PASSWORD'),
-            string(credentialsId: 'WEATHERAPP_APIKEY', variable: 'WEATHERAPP_APIKEY')
-          ]) {
-            sh '''
-cat <<EOF > docker-compose.yml
-version: '3.5'
-services:
-  db:
-    container_name: weatherapp-db
-    image: devopseasylearning/weatherapp-db:${BUILD_NUMBER}
-    environment:
-      MYSQL_ROOT_PASSWORD: ${WEATHERAPP_MYSQL_ROOT_PASSWORD}
-    volumes:
-      - db-data:/var/lib/mysql
-    networks:   
-      - weatherapp
-    restart: always
-
-  redis:
-    container_name: weatherapp-redis
-    image: devopseasylearning/weatherapp-redis:${BUILD_NUMBER}
-    networks:
-      - weatherapp
-    environment:
-      REDIS_USER: redis
-      REDIS_PASSWORD: ${WEATHERAPP_REDIS_PASSWORD}
-    volumes:
-      - redis-data:/data
-    restart: always
-
-  weather:
-    container_name: weatherapp-weather
-    image: devopseasylearning/weatherapp-weather:${BUILD_NUMBER}
-    expose:
-      - 5000
-    environment:
-      APIKEY: ${WEATHERAPP_APIKEY}
-    networks:
-      - weatherapp
-    restart: always
-    depends_on:
-      - db
-      - redis  # Weather depends on both db and redis
-
-  auth:
-    container_name: weatherapp-auth
-    image: devopseasylearning/weatherapp-auth:${BUILD_NUMBER}
-    environment:
-      DB_HOST: db
-      DB_PASSWORD: ${WEATHERAPP_DB_PASSWORD}
-    expose:
-      - 8080
-    networks:
-      - weatherapp
-    restart: always
-    depends_on:
-      - weather  # Auth depends on the weather service
-
-  ui:
-    container_name: weatherapp-ui
-    image: devopseasylearning/weatherapp-ui:${BUILD_NUMBER}
-    environment:
-      AUTH_HOST: auth
-      AUTH_PORT: 8080
-      WEATHER_HOST: weather
-      WEATHER_PORT: 5000
-      REDIS_USER: redis
-      REDIS_PASSWORD: ${WEATHERAPP_REDIS_PASSWORD}
-    expose:
-      - 3000
-    ports:
-      - 3000:3000
-    networks:
-      - weatherapp
-    restart: always
-    depends_on:
-      - auth  # UI depends on Auth
-
-networks:
-  weatherapp:
-    driver: bridge
-
-volumes:
-  db-data:
-  redis-data:
-EOF
-            '''
-          }
-        }
-      }
-    }
-
-    stage('Deploy') {
-      agent any
-      
-      
-      steps {
-        sh '''
-          docker-compose down --remove-orphans || true
-          docker-compose up -d 
-          docker-compose ps 
-        '''
-      }
-    }
-
-    stage('checking website') {
-      agent any
-      
-      steps {
-        sh '''
-          sleep 10
-          bash weatherapp/check-login.sh
-        '''
-      }
-    }
-  }
-
-  post {
-    always {
-      script {
-        notifyUpgrade(currentBuild.currentResult, "POST")
-      }
-    }
-  }
-}
-
-def notifyUpgrade(String buildResult, String whereAt) {
-  def channel = 'development-alerts'
-  
-  if (buildResult == "SUCCESS") {
-    switch(whereAt) {
-      case 'WARNING':
-        slackSend(channel: channel,
-                  color: "#439FE0",
-                  message: "The_weather_app_S5: Upgrade starting in ${env.WARNTIME} minutes @ ${env.BUILD_URL}  Application The_weather_app_S5")
-        break
-      case 'STARTING':
-        slackSend(channel: channel,
-                  color: "good",
-                  message: "The_weather_app_S5: Starting upgrade @ ${env.BUILD_URL} Application The_weather_app_S5")
-        break
-      default:
-        slackSend(channel: channel,
-                  color: "good",
-                  message: "The_weather_app_S5: Upgrade completed successfully @ ${env.BUILD_URL}  Application The_weather_app_S5")
-        break
-    }
-  } else {
-    slackSend(channel: channel,
-              color: "danger",
-              message: "The_weather_app_S5: Upgrade was not successful. Please investigate it immediately.  @ ${env.BUILD_URL}  Application The_weather_app_S5")
   }
 }
 
