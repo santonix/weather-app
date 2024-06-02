@@ -1,13 +1,7 @@
 pipeline {
-  agent {
-    docker {
-         image 'santonix/santonix-jenkins-docker-agent:latest'
-         
-      
-    }
+  agent any
     
-  }
-    
+ 
   environment {
     DOCKER_REGISTRY_URL = 'https://hub.docker.com/v1/ '
     DOCKERHUB_CREDENTIALS = credentials('jenkins-vivo-dockerhub')
