@@ -326,11 +326,16 @@ EOF
   }
 
   post {
-    always {
-      script {
-        notifyUpgrade(currentBuild.currentResult, "POST")
-      }
+    success {
+        emailext subject: "Build Success: ${currentBuild.fullDisplayName}",
+                  body: "Congratulations! Your build was successful.",
+                  recipientProviders: [culprits(), developers()]
     }
-  }
+    failure {
+        emailext subject: "Build Failure: ${currentBuild.fullDisplayName}",
+                  body: "Oops! Your build failed. Please check the Jenkins console output for details.",
+                  recipientProviders: [culprits(), developers()]
+    }
+ }
 }
 
