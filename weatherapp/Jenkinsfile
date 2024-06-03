@@ -1,0 +1,308 @@
+
+pipeline {
+    agent {
+        label ("preproduction")
+            }
+  environment {
+		DOCKERHUB_CREDENTIALS=credentials('dockerhub')
+	}
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '5'))
+        disableConcurrentBuilds()
+        timeout(time: 1, unit: 'HOURS') 
+        timestamps()
+      }
+    stages {
+        stage('Setup parameters') {
+            steps {
+                script {
+                    properties([
+                        parameters([
+
+                             string(name: 'AUTH',
+                             defaultValue: '',
+                            description: '''Enter the AUTH service tag starting with v example v1.1.0 '''),
+
+
+                             string(name: 'DB',
+                             defaultValue: '',
+                            description: '''Enter the DB service tag with v example v1.1.0 '''),
+
+
+                             string(name: 'REDIS',
+                             defaultValue: '',
+                            description: '''Enter the REDIS  service tag with v example v1.1.0 '''),
+
+                             string(name: 'UI',
+                             defaultValue: '',
+                            description: '''Enter the UI  service tag with v example v1.1.0 '''),
+
+                             string(name: 'WEATHER',
+                             defaultValue: '',
+                            description: '''Enter the WEATHER  service tag with v example v1.1.0'''),
+                        ])
+                    ])
+                }
+            }
+        }
+
+
+
+    stage('check entry') {
+
+			steps {
+				sh ''' 
+                bash $WORKSPACE/weatherapp/preprod.sh $AUTH $DB $REDIS  $UI $WEATHER 
+                '''
+			}
+		}
+
+    stage('Login') {
+
+			steps {
+				sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+			}
+		}
+
+    stage('pulling  auth') {
+
+			steps {
+				sh '''
+    docker pull devopseasylearning/weatherapp-auth:$AUTH
+                  '''
+			}
+		}
+
+
+    stage('pulling db  ') {
+
+			steps {
+				sh '''
+    docker pull devopseasylearning/weatherapp-db:$DB
+                  '''
+			}
+		}
+    stage('pulling redis ') {
+
+			steps {
+				sh '''
+    docker pull devopseasylearning/weatherapp-redis:$REDIS
+                  '''
+			}
+		}
+
+    stage('pulling  UI ') {
+
+			steps {
+				sh '''
+    docker pull devopseasylearning/weatherapp-ui:$UI
+
+                  '''
+			}
+		}
+
+      stage('pulling  weather ') {
+
+			steps {
+				sh '''
+    docker pull devopseasylearning/weatherapp-weather:$WEATHER 
+                  '''
+			}
+		}
+
+
+
+
+        stage('Generate-compose') {
+ 
+	      steps {
+	        script {
+	          withCredentials([
+	            string(credentialsId: 'WEATHERAPP_MYSQL_ROOT_PASSWORD', variable: 'WEATHERAPP_MYSQL_ROOT_PASSWORD'),
+	            string(credentialsId: 'WEATHERAPP_REDIS_PASSWORD', variable: 'WEATHERAPP_REDIS_PASSWORD'),
+	            string(credentialsId: 'WEATHERAPP_DB_PASSWORD', variable: 'WEATHERAPP_DB_PASSWORD'),
+                string(credentialsId: 'WEATHERAPP_APIKEY', variable: 'WEATHERAPP_APIKEY')
+	          ]) {
+
+	            sh '''
+cat <<EOF > /home/ubuntu/docker-compose.yml
+  version: '3.5'
+  services:
+    db:
+      container_name: weatherapp-db
+      image: devopseasylearning/weatherapp-db:${DB}
+      environment:
+        MYSQL_ROOT_PASSWORD: ${WEATHERAPP_MYSQL_ROOT_PASSWORD}
+      volumes:
+        - db-data:/var/lib/mysql
+      networks:   
+        - weatherapp
+      restart: always
+  
+    redis:
+      container_name: weatherapp-redis
+      image: devopseasylearning/weatherapp-redis:${REDIS}
+      networks:
+        - weatherapp
+      environment:
+        REDIS_USER: redis
+        REDIS_PASSWORD: ${WEATHERAPP_REDIS_PASSWORD}
+      volumes:
+        - redis-data:/data
+      restart: always
+  
+    weather:
+      container_name: weatherapp-weather
+      image: devopseasylearning/weatherapp-weather:${WEATHER}
+      expose:
+        - 5000
+      environment:
+        APIKEY: ${WEATHERAPP_APIKEY}
+      networks:
+        - weatherapp
+      restart: always
+      depends_on:
+        - db
+        - redis  # Weather depends on both db and redis
+    auth:
+      container_name: weatherapp-auth
+      image: devopseasylearning/weatherapp-auth:${AUTH}
+      environment:
+        DB_HOST: db
+        DB_PASSWORD: ${WEATHERAPP_DB_PASSWORD}
+      expose:
+        - 8080
+      networks:
+        - weatherapp
+      restart: always
+      depends_on:
+        - weather  # Auth depends on the weather service
+  
+    ui:
+      container_name: weatherapp-ui
+      image: devopseasylearning/weatherapp-ui:${UI}
+      environment:
+       AUTH_HOST: auth
+       AUTH_PORT: 8080
+       WEATHER_HOST: weather
+       WEATHER_PORT: 5000
+       REDIS_USER: redis
+       REDIS_PASSWORD: ${WEATHERAPP_REDIS_PASSWORD}
+      expose:
+        - 3000
+      ports:
+        - 3000:3000
+      networks:
+        - weatherapp
+      restart: always
+      depends_on:
+        - auth  # UI depends on Auth
+  networks:
+    weatherapp:
+  
+  volumes:
+    db-data:
+    redis-data:
+EOF
+	            '''
+	          }
+
+	        }
+
+	      }
+
+	    }
+
+
+
+
+
+        stage('Deploy') {
+
+            steps {
+                sh '''
+             cd /home/ubuntu
+             cat docker-compose.yml
+            docker-compose down --remove-orphans || true
+            docker-compose up -d 
+            docker-compose ps 
+
+                '''
+            }
+        }
+        // stage('checking deployment') {
+        //   steps {
+        //         sh '''
+        //     ls -l
+        //     bash $WORKSPACE/weatherapp/check.sh
+        //         '''
+        //     }
+        // }
+
+
+
+
+        stage('checking website') {
+            steps {
+                sh '''
+                ls -l
+            sleep 10
+#!/bin/bash
+ip_address=$(curl -s https://api.ipify.org ; echo)
+ip_port=3000
+curl http://$ip_address:$ip_port/login | grep 'login'
+
+if 
+  [[  $? -ne 0 ]] 
+then 
+echo "The website is not comming up, please check"
+exit 1
+fi
+                '''
+            }
+        }
+
+
+        stage('Access app ') {
+            steps {
+                sh '''
+            echo "$DEPLOYER_NAME access the application at http://$ip_address:$ip_port/login"
+                '''
+            }
+        }
+ 
+
+
+
+
+
+
+
+}
+
+
+
+   post {
+   
+   success {
+      slackSend (channel: '#situation', color: 'good', message: "PREPROD version $UI ,  Application The_Weather_app SUCCESSFUL:  Branch name  <<${env.BRANCH_NAME}>>  Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+    }
+
+ 
+
+    failure {
+      slackSend (channel: '#situation', color: '#FF0000', message: "PREPROD version $UI , Application The_Weather_app FAILURE:  Branch name  <<${env.BRANCH_NAME}>> Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+    }
+   
+    cleanup {
+      deleteDir()
+    }
+}
+
+
+
+
+
+
+}
+
