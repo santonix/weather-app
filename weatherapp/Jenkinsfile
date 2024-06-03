@@ -285,24 +285,22 @@ fi		'''
 
 
 }
-
-
-
-   post {
-   
-   success {
-      slackSend (channel: '#situation', color: 'good', message: "PREPROD version $UI ,  Application The_Weather_app SUCCESSFUL:  Branch name  <<${env.BRANCH_NAME}>>  Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+post {
+    success {
+        emailext subject: "Build Success: ${currentBuild.fullDisplayName}",
+                  body: "Congratulations! Your build was successful.",
+                  recipientProviders: [culprits(), developers()]
     }
-
- 
-
     failure {
-      slackSend (channel: '#situation', color: '#FF0000', message: "PREPROD version $UI , Application The_Weather_app FAILURE:  Branch name  <<${env.BRANCH_NAME}>> Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+        emailext subject: "Build Failure: ${currentBuild.fullDisplayName}",
+                  body: "Oops! Your build failed. Please check the Jenkins console output for details.",
+                  recipientProviders: [culprits(), developers()]
     }
+ }	
+
+
+
    
-    cleanup {
-      deleteDir()
-    }
 }
 
 
