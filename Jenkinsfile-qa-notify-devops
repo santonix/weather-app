@@ -1,0 +1,120 @@
+
+pipeline {
+    agent any 
+  environment {
+		DOCKERHUB_CREDENTIALS=credentials('dockerhub')
+	}
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '5'))
+        disableConcurrentBuilds()
+        timeout(time: 1, unit: 'HOURS') 
+        timestamps()
+      }
+    stages {
+        stage('Setup parameters') {
+            steps {
+                script {
+                    properties([
+                        parameters([
+                        choice(
+                              choices: ["Devops", "Development"], 
+                              name: 'NOTIFY'
+                           
+                                ),
+
+                             string(name: 'AUTH',
+                             defaultValue: '',
+                            description: '''Enter the AUTH service tag starting with v example v1.1.0 '''),
+
+
+                             string(name: 'DB',
+                             defaultValue: '',
+                            description: '''Enter the DB service tag with v example v1.1.0 '''),
+
+
+                             string(name: 'REDIS',
+                             defaultValue: '',
+                            description: '''Enter the REDIS  service tag with v example v1.1.0 '''),
+
+                             string(name: 'UI',
+                             defaultValue: '',
+                            description: '''Enter the UI  service tag with v example v1.1.0 '''),
+
+                             string(name: 'WEATHER',
+                             defaultValue: '',
+                            description: '''Enter the WEATHER  service tag with v example v1.1.0'''),
+                        ])
+                    ])
+                }
+            }
+        }
+
+
+
+    stage('check entry') {
+
+			steps {
+				sh ''' 
+                bash $WORKSPACE/weatherapp/qa.sh $AUTH $DB $REDIS  $UI $WEATHER 
+                '''
+			}
+		}
+
+    stage('notify Development team ') {
+      when{      
+          expression {
+            env.NOTIFY == 'Development' }
+          
+            }
+            steps {
+                sh '''
+             sleep 10 
+                '''
+            }
+        }
+
+
+    stage('notify DevOps Team ') {
+      when{      
+          expression {
+            env.NOTIFY == 'Devops' }
+          
+            }
+            steps {
+                sh '''
+             sleep 10 
+                '''
+            }
+        }
+
+
+}
+
+
+
+   post {
+   
+   success {
+      slackSend (channel: '#devops-team', color: 'good', message: " ALL QA TESTS WERE SUCCESSFUL recommended for deployment, Application The_Weather_app  with  tag name:\n auth:$AUTH\n   redis:$REDIS\n  db:$DB\n   ui:$UI\n   weather:$WEATHER\n   :  Branch name  <<${env.BRANCH_NAME}>>  Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+    
+    }
+
+    failure {
+      slackSend (channel: '#development-alerts', color: '#FF0000', message: " QA TESTS HAVE FAILED\n tag name:\n auth:$AUTH\n   redis:$REDIS\n  db:$DB\n   ui:$UI\n   weather:$WEATHER\n please contact QA team for more details, Application The_Weather_app   FAILURE:  Branch name  <<${env.BRANCH_NAME}>> Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})") 
+      
+    }
+
+
+    cleanup {
+      deleteDir()
+    }
+}
+
+
+
+
+
+
+}
+
+
