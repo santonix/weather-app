@@ -1,10 +1,8 @@
 
 pipeline {
-    agent {
-        label ("preproduction")
-            }
+    agent any
   environment {
-		DOCKERHUB_CREDENTIALS=credentials('dockerhub')
+		DOCKERHUB_CREDENTIALS=credentials('jenkins-vivo-dockerhub')
 	}
     options {
         buildDiscarder(logRotator(numToKeepStr: '5'))
@@ -68,7 +66,7 @@ pipeline {
 
 			steps {
 				sh '''
-    docker pull devopseasylearning/weatherapp-auth:$AUTH
+    docker pull santonix/santonix-weatherapp-auth:$AUTH
                   '''
 			}
 		}
@@ -78,7 +76,7 @@ pipeline {
 
 			steps {
 				sh '''
-    docker pull devopseasylearning/weatherapp-db:$DB
+    docker pull santonix/santonix-weatherapp-db:$DB
                   '''
 			}
 		}
@@ -86,7 +84,7 @@ pipeline {
 
 			steps {
 				sh '''
-    docker pull devopseasylearning/weatherapp-redis:$REDIS
+    docker pull santonix/santonix-weatherapp-redis:$REDIS
                   '''
 			}
 		}
@@ -95,7 +93,7 @@ pipeline {
 
 			steps {
 				sh '''
-    docker pull devopseasylearning/weatherapp-ui:$UI
+    docker pull santonix/santonix-weatherapp-ui:$UI
 
                   '''
 			}
@@ -105,7 +103,7 @@ pipeline {
 
 			steps {
 				sh '''
-    docker pull devopseasylearning/weatherapp-weather:$WEATHER 
+    docker pull santonix/santonix-weatherapp-weather:$WEATHER 
                   '''
 			}
 		}
