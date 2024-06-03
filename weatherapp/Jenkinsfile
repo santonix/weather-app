@@ -88,10 +88,10 @@ pipeline {
       }
       environment {
         CI = 'true'
-        scannerHome = tool 'Sonar scanner'
+        scannerHome = tool 'sonar scanner'
       }
       steps {
-        withSonarQubeEnv('Sonar server') {
+        withSonarQubeEnv('sonar server') {
             sh "${scannerHome}/bin/sonar-scanner"
         }
       }
