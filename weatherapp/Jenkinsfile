@@ -123,7 +123,7 @@ pipeline {
 	          ]) {
 
 	            sh '''
-cat <<EOF > /home/ubuntu/docker-compose.yml
+cat <<EOF > docker-compose.yml
   version: '3.5'
   services:
     db:
@@ -216,11 +216,12 @@ EOF
 
 
         stage('Deploy') {
+		agent any
 
             steps {
                 sh '''
-             cd /home/ubuntu
-             cat docker-compose.yml
+            
+            
             docker-compose down --remove-orphans || true
             docker-compose up -d 
             docker-compose ps 
