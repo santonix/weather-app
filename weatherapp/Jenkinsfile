@@ -219,7 +219,7 @@ EOF
 
             steps {
                 sh '''
-             cd /home/ubuntu
+             cd /home/bonny
              cat docker-compose.yml
             docker-compose down --remove-orphans || true
             docker-compose up -d 
