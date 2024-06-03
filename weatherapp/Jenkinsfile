@@ -1,10 +1,8 @@
 
 pipeline {
-    agent {
-        label ("production")
-            }
+    agent any
   environment {
-		DOCKERHUB_CREDENTIALS=credentials('dockerhub')
+		DOCKERHUB_CREDENTIALS=credentials('jenkins-vivo-dockerhub')
 	}
     options {
         buildDiscarder(logRotator(numToKeepStr: '5'))
@@ -68,7 +66,7 @@ pipeline {
 
 			steps {
 				sh '''
-    docker pull devopseasylearning/weatherapp-auth:$AUTH
+    docker pull santonix/santonix-weatherapp-auth:$AUTH
                   '''
 			}
 		}
@@ -78,7 +76,7 @@ pipeline {
 
 			steps {
 				sh '''
-    docker pull devopseasylearning/weatherapp-db:$DB
+    docker pull santonix/santonix-weatherapp-db:$DB
                   '''
 			}
 		}
@@ -86,7 +84,7 @@ pipeline {
 
 			steps {
 				sh '''
-    docker pull devopseasylearning/weatherapp-redis:$REDIS
+    docker pull santonix/santonix-weatherapp-redis:$REDIS
                   '''
 			}
 		}
@@ -95,7 +93,7 @@ pipeline {
 
 			steps {
 				sh '''
-    docker pull devopseasylearning/weatherapp-ui:$UI
+    docker pull santonix/santonix-weatherapp-ui:$UI
 
                   '''
 			}
@@ -105,7 +103,7 @@ pipeline {
 
 			steps {
 				sh '''
-    docker pull devopseasylearning/weatherapp-weather:$WEATHER 
+    docker pull santonix/santonix-weatherapp-weather:$WEATHER 
                   '''
 			}
 		}
@@ -248,16 +246,25 @@ EOF
                 ls -l
             sleep 10
 #!/bin/bash
-ip_address=$(curl -s https://api.ipify.org ; echo)
-ip_port=3000
-curl http://$ip_address:$ip_port/login | grep 'login'
 
-if 
-  [[  $? -ne 0 ]] 
-then 
-echo "The website is not comming up, please check"
-exit 1
-fi
+# Get the local IP address
+ip_address=$(hostname -I | awk '{print $1}')
+echo "Local IP address: $ip_address"
+
+# Set the port number
+ip_port=3000
+
+# Attempt to access the web server
+response=$(curl -s http://$ip_address:$ip_port/login)
+
+# Check if the title tag exists in the response
+if [[ $? -ne 0 ]] || ! echo "$response" | grep -q '<title>Weather app login</title>'; then
+  echo "The website is not coming up, please check"
+  exit 1
+fi	    
+	    
+	    
+
                 '''
             }
         }
