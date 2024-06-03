@@ -123,7 +123,7 @@ pipeline {
 	          ]) {
 
 	            sh '''
-cat <<EOF > 
+cat <<EOF > docker-compose.yml
   version: '3.5'
   services:
     db:
@@ -216,6 +216,7 @@ EOF
 
 
         stage('Deploy') {
+		agent any
 
             steps {
                 sh '''
