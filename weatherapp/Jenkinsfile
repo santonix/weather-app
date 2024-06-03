@@ -86,13 +86,10 @@ pipeline {
             image 'sonarsource/sonar-scanner-cli:4.7.0'
         }
       }
-      environment {
-        CI = 'true'
-        scannerHome = tool 'sonar scanner'
-      }
+      
       steps {
         withSonarQubeEnv('sonar server') {
-            sh "${scannerHome}/bin/sonar-scanner"
+            sh "${tool 'sonar scanner'}/bin/sonar-scanner"
         }
       }
     
