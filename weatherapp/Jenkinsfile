@@ -216,13 +216,14 @@ EOF
 
 
         stage('Deploy') {
-		agent any
+		agent built-in
 
             steps {
                 sh '''
             
             
             docker-compose down --remove-orphans || true
+	    sleep 2
             docker-compose up -d 
             docker-compose ps 
 
