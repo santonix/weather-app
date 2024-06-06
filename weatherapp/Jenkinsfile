@@ -14,6 +14,11 @@ pipeline {
   }
 
   stages {
+    stage('clean workspace'){
+            steps{
+                cleanWs()
+            }
+    }
     stage ('checkout') {
       steps {
         checkout scmGit(branches: [[name: '**']], extensions: [], userRemoteConfigs: [[credentialsId: 'jenkins-github-private', url: 'git@github.com:santonix/weather-app.git']])
