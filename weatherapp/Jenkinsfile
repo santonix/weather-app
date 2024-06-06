@@ -216,7 +216,7 @@ EOF
 
 
         stage('Deploy') {
-		agent built-in
+		agent any
 
             steps {
                 sh '''
