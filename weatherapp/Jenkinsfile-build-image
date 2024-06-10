@@ -75,8 +75,8 @@ pipeline {
 			steps {
 				sh '''
                 rm -rf * || true 
-                git clone -b $TAG git@github.com:DEL-ORG/S5-SESSION-PROJECTS.git  
-                cd $WORKSPACE/S5-SESSION-PROJECTS
+                git clone -b $TAG git@github.com:santonix/weather-app.git
+                cd $WORKSPACE/weather-app
                   '''
 			}
 		}
@@ -87,8 +87,8 @@ pipeline {
 
 			steps {
 				sh '''
-            cd $WORKSPACE/S5-SESSION-PROJECTS/weatherapp/auth
-            docker build -t devopseasylearning/weatherapp-auth:${AUTH} .
+            cd $WORKSPACE/weather-app/weatherapp/auth
+            docker build -t  santonix/weatherapp-auth:${AUTH} .
                   '''
 			}
 		}
@@ -99,7 +99,7 @@ pipeline {
 			steps {
 				sh '''
 
-            docker push devopseasylearning/weatherapp-auth:${AUTH} 
+            docker push santonix/weatherapp-auth:${AUTH} 
                   '''
 			}
 		}
@@ -110,8 +110,8 @@ pipeline {
 
 			steps {
 				sh '''
-            cd $WORKSPACE/S5-SESSION-PROJECTS/weatherapp/db
-            docker build -t devopseasylearning/weatherapp-db:${DB} .
+            cd $WORKSPACE/weather-app/weatherapp/db
+            docker build -t santonix/weatherapp-db:${DB} .
                   '''
 			}
 		}
@@ -121,7 +121,7 @@ pipeline {
 			steps {
 				sh '''
 
-            docker push devopseasylearning/weatherapp-db:${DB} 
+            docker push santonix/weatherapp-db:${DB} 
                   '''
 			}
 		}
@@ -131,8 +131,8 @@ pipeline {
 
 			steps {
 				sh '''
-            cd $WORKSPACE/S5-SESSION-PROJECTS/weatherapp/redis
-            docker build -t devopseasylearning/weatherapp-redis:${REDIS} .
+            cd $WORKSPACE/weather-app/weatherapp/redis
+            docker build -t santonix/weatherapp-redis:${REDIS} .
                   '''
 			}
 		}
@@ -140,7 +140,7 @@ pipeline {
 
 			steps {
 				sh '''
-            docker push devopseasylearning/weatherapp-redis:${REDIS} 
+            docker push santonix/weatherapp-redis:${REDIS} 
            '''
 			}
 		}
@@ -148,8 +148,8 @@ pipeline {
 
 			steps {
 				sh '''
-            cd $WORKSPACE/S5-SESSION-PROJECTS/weatherapp/UI
-            docker build -t devopseasylearning/weatherapp-ui:${UI} .
+            cd $WORKSPACE/weather-app/weatherapp/UI
+            docker build -t santonix/weatherapp-ui:${UI} .
 
                   '''
 			}
@@ -160,7 +160,7 @@ pipeline {
 
 			steps {
 				sh '''
-            docker push  devopseasylearning/weatherapp-ui:${UI} 
+            docker push  santonix/weatherapp-ui:${UI} 
           '''
 			}
 		}
@@ -169,8 +169,8 @@ pipeline {
 
 			steps {
 				sh '''
-            cd $WORKSPACE/S5-SESSION-PROJECTS/weatherapp/weather
-            docker build -t devopseasylearning/weatherapp-weather:${WEATHER} .
+            cd $WORKSPACE/weather-app/weatherapp/weather
+            docker build -t santonix/weatherapp-weather:${WEATHER} .
                   '''
 			}
 		}
@@ -179,7 +179,7 @@ pipeline {
 
 			steps {
 				sh '''
-            docker push  devopseasylearning/weatherapp-weather:${WEATHER} 
+            docker push  santonix/weatherapp-weather:${WEATHER} 
            '''
 			}
 		}
