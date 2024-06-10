@@ -1,10 +1,8 @@
 
 pipeline {
-    agent {
-        label ("deploy-branches")
-            }
+    agent any
   environment {
-		DOCKERHUB_CREDENTIALS=credentials('dockerhub')
+		DOCKERHUB_CREDENTIALS=credentials('jenkins-vivo-dockerhub')
 	}
     options {
         buildDiscarder(logRotator(numToKeepStr: '5'))
