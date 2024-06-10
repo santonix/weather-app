@@ -144,7 +144,7 @@ pipeline {
 	          ]) {
 
 	            sh '''
-cat <<EOF > /home/ubuntu/docker-compose.yml
+cat <<EOF > 
   version: '3.5'
   services:
     db:
@@ -237,8 +237,6 @@ EOF
             steps {
                 sh '''
 
-             cd /home/ubuntu
-             cat docker-compose.yml
             docker-compose down --remove-orphans || true
             docker-compose up -d 
             docker-compose ps 
@@ -250,7 +248,7 @@ EOF
         //   steps {
         //         sh '''
         //     ls -l
-        //     bash S5-SESSION-PROJECTS/weatherapp/check.sh
+        //     bash weather-app/weatherapp/check.sh
         //         '''
         //     }
         // }
