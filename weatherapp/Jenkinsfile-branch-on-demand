@@ -144,7 +144,7 @@ pipeline {
 	          ]) {
 
 	            sh '''
-cat <<EOF > 
+cat <<EOF  
   version: '3.5'
   services:
     db:
