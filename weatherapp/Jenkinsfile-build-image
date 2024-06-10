@@ -75,7 +75,7 @@ pipeline {
 			steps {
 				sh '''
                 rm -rf * || true 
-                git clone -b $TAG git@github.com:santonix/weather-app.git
+                git clone -b $BRANCH git@github.com:santonix/weather-app.git
                 cd $WORKSPACE/weather-app
                   '''
 			}
