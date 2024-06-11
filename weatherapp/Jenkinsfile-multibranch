@@ -78,7 +78,11 @@ pipeline {
     }
             steps{
                 withSonarQubeEnv('sonar server') {
-                    sh "${scannerHome}/bin/sonar-scanner"
+                                 withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                        sh "${SCANNER_HOME}/bin/sonar-scanner -Dsonar.login=$SONAR_TOKEN"
+                    }
+                     
+                   
                 }
             }
         }
