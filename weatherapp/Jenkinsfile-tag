@@ -57,7 +57,7 @@ pipeline {
 			steps {
 				sh '''
                 rm -rf * || true 
-                git clone -b $BRANCH git@github.com:DEL-ORG/S5-SESSION-PROJECTS.git  
+                git clone -b $BRANCH git@github.com:santonix/weather-app.git  
                   '''
 			}
 		}
