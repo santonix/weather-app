@@ -65,9 +65,9 @@ pipeline {
         stage('tagging && pushing') {
             steps {
                 sh '''
-             git config --global user.email "info@devopseasylearning.com"
-             git config --global user.name "devopseasylearning"
-            cd $WORKSPACE/S5-SESSION-PROJECTS/weatherapp
+             git config --global user.email "jofranco1203@gmail.com"
+             git config --global user.name "bonny"
+            cd $WORKSPACE/weather-app/weatherapp
             git tag -a v$TAG_NUMBER   -m "$COMMIT_MESSAGE"
             git push origin v$TAG_NUMBER
 
