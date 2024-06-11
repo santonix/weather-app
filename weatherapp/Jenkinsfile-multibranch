@@ -73,7 +73,7 @@ pipeline {
                }
                environment {
         CI = 'true'
-        //  scannerHome = tool 'Sonar'
+        //  scannerHome = tool 'sonar scanner'
         scannerHome='/opt/sonar-scanner'
     }
             steps{
